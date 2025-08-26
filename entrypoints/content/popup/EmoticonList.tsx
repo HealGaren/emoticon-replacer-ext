@@ -45,26 +45,32 @@ export const EmoticonList = ({onItemClick}: {onItemClick: (emoticon: EmoticonIte
     if (store.fetchError) {
         return (
             <div className={[style.emoticonList, style.error].join(' ')}>
-                이모티콘 목록을 불러오지 못했습니다.<br/>
-                <div className={style.retryButton} key="retry" onClick={handleRetryClick}>다시 시도</div>
+                <div>
+                    이모티콘 목록을 불러오지 못했습니다.<br/>
+                    <div className={style.retryButton} key="retry" onClick={handleRetryClick}>다시 시도</div>
+                </div>
             </div>
         );
     }
     if (!store.initialized) {
         return (
             <div className={[style.emoticonList, style.empty].join(' ')}>
-                이모티콘을 불러오는 중입니다.
-                <div className={style.retryButton} style={{display: 'none'}} key="retry" onClick={handleRetryClick}>다시 시도</div>
+                <div>
+                    이모티콘을 불러오는 중입니다.
+                    <div className={style.retryButton} style={{display: 'none'}} key="retry" onClick={handleRetryClick}>다시 시도</div>
+                </div>
             </div>
         );
     }
     if (emoticonList.length === 0) {
         return (
             <div className={[style.emoticonList, style.empty].join(' ')}>
-                검색 결과가 없어요 ㅜㅜ<br/>
-                <a href={Config.currentStreamer.externalSelectorSiteLink} target="_blank">여기</a>서 찾아보시거나<br/>
-                버그로 보이면 <a href={Config.bugReportLink} target="_blank">버그 리포트</a>를 남겨주세요!
-                <div className={style.retryButton} style={{display: 'none'}} key="retry" onClick={handleRetryClick}>다시 시도</div>
+                <div>
+                    검색 결과가 없어요 ㅜㅜ<br/>
+                    <a href={Config.currentStreamer.externalSelectorSiteLink} target="_blank">여기</a>서 찾아보시거나<br/>
+                    버그로 보이면 <a href={Config.bugReportLink} target="_blank">버그 리포트</a>를 남겨주세요!
+                    <div className={style.retryButton} style={{display: 'none'}} key="retry" onClick={handleRetryClick}>다시 시도</div>
+                </div>
             </div>
         );
     }
