@@ -18,8 +18,9 @@ export function monitorURL(patterns: URLPattern[], callback: (matchedPattern: UR
         let matchedPattern: URLPattern | null = null;
 
         for (const pattern of patterns) {
-            const currentMatchResult = window.location.pathname.match(pattern.regex);
-            if (currentMatchResult) {
+            const hostnameMatch = window.location.hostname === pattern.hostname;
+            const currentMatchResult = window.location.pathname.match(pattern.pathRegex);
+            if (hostnameMatch && currentMatchResult) {
                 matchedPattern = pattern;
                 matchedResult = currentMatchResult;
                 break;

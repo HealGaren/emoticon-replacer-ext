@@ -21,25 +21,31 @@ export function registerChatListEmoticonReplacer(chatList: HTMLElement, chatMess
         descriptionContainer.className = style.description;
         div.appendChild(descriptionContainer);
 
+        const keywordSpanWrap = document.createElement('div');
+        descriptionContainer.appendChild(keywordSpanWrap);
+
         const keywordSpan = document.createElement('span');
         keywordSpan.textContent = '~' + keyword;
-        descriptionContainer.appendChild(keywordSpan);
+        keywordSpanWrap.appendChild(keywordSpan);
 
+
+        const guideWrap = document.createElement('div');
+        guideWrap.className = style.guide;
+        descriptionContainer.appendChild(guideWrap);
 
         const guide = document.createElement('span');
-        guide.className = style.guide;
         guide.textContent = '클릭해서 복사';
-        descriptionContainer.appendChild(guide);
+        guideWrap.appendChild(guide);
 
 
         div.addEventListener('click', () => {
             window.navigator.clipboard.writeText('~' + keyword);
             guide.textContent = '복사되었습니다.';
-            guide.classList.add(style.copied);
+            guideWrap.classList.add(style.copied);
             setTimeout(() => {
                 if (document.contains(guide)) {
                     guide.textContent = '클릭해서 복사';
-                    guide.classList.remove(style.copied);
+                    guideWrap.classList.remove(style.copied);
                 }
             }, 1000);
         });

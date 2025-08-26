@@ -39,7 +39,7 @@ export const Config = { // TODO: 서버 기반 데이터로 중간에 패치 가
     dispatchFakeEvent: true,
 
     monitor: {
-        liveUrlPattern: "^\/live\/([^\/]+)",
+        liveUrlPattern: "^\/(?:iframe\/)?live\/([^\/]+)",
         vodUrlPattern: "^\/video\/([^\/]+)",
         chatListSelector: {css: '[class^="live_chatting_list_wrapper__"]'},
         vodChatListSelector: {css: '[class^="vod_chatting_list__"]'},

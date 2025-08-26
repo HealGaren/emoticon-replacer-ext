@@ -11,8 +11,8 @@ export function monitorStreamerLiveURLAndChat(ctx: ContentScriptContext) {
     const liveURLPattern = new RegExp(Config.monitor.liveUrlPattern);
     const vodURLPattern = new RegExp(Config.monitor.vodUrlPattern);
     return monitorURL([
-        {regex: liveURLPattern, key: 'live'},
-        {regex: vodURLPattern, key: 'vod'}
+        {hostname: 'chzzk.naver.com', pathRegex: liveURLPattern, key: 'live'},
+        {hostname: 'chzzk.naver.com', pathRegex: vodURLPattern, key: 'vod'},
     ], (matchedPattern, matchedGroupValue) => {
         if (!(matchedPattern)) {
             return null;

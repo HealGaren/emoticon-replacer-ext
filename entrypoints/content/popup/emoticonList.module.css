@@ -12,6 +12,7 @@
     justify-content: center;
     height: 100%;
     text-align: center;
+    font-size: 1em;
 }
 
 .emoticonList.empty a {
@@ -19,7 +20,7 @@
     text-decoration: underline;
 }
 
-@container (min-width: 360px) {
+@container (min-width: 420px) {
     .emoticonList {
         grid-template-columns: repeat(5, 1fr);
         font-size: 0.7em;
@@ -98,6 +99,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+
 }
 
 .emoticonItem:hover .description {
@@ -105,6 +107,7 @@
 }
 
 .emoticonItem .description span {
+    color: var(--Ref-Color-Neutral-0);
 }
 
 .emoticonItem .description .additional {
@@ -120,7 +123,7 @@
     font-size: 0.9em;
     margin-top: 1.5em;
     white-space: normal;
-    color: var(--Content-Neutral-Cool-Base);
+    color: var(--Ref-Color-CoolGray-30);
 }
 
 .emoticonItem .description .tag {
