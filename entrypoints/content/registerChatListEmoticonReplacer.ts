@@ -7,11 +7,44 @@ import {Config} from "@/entrypoints/content/config.ts";
 export function registerChatListEmoticonReplacer(chatList: HTMLElement, chatMessageSelector: ElementSelector) {
 
     function appendEmoticonBeforeNode(keyword: string, emoticon: EmoticonItem, textNode: Node) {
+        const div = document.createElement('div');
+        div.className = style.emoticonWrap;
+
+
         const img = document.createElement('img');
+        img.className = style.replacedEmoticon;
         img.src = emoticon.path;
         img.alt = keyword;
-        img.className = style.replacedEmoticon;
-        textNode.parentNode?.insertBefore(img, textNode);
+        div.appendChild(img);
+
+        const descriptionContainer = document.createElement('div');
+        descriptionContainer.className = style.description;
+        div.appendChild(descriptionContainer);
+
+        const keywordSpan = document.createElement('span');
+        keywordSpan.textContent = '~' + keyword;
+        descriptionContainer.appendChild(keywordSpan);
+
+
+        const guide = document.createElement('span');
+        guide.className = style.guide;
+        guide.textContent = '클릭해서 복사';
+        descriptionContainer.appendChild(guide);
+
+
+        div.addEventListener('click', () => {
+            window.navigator.clipboard.writeText('~' + keyword);
+            guide.textContent = '복사되었습니다.';
+            guide.classList.add(style.copied);
+            setTimeout(() => {
+                if (document.contains(guide)) {
+                    guide.textContent = '클릭해서 복사';
+                    guide.classList.remove(style.copied);
+                }
+            }, 1000);
+        });
+
+        textNode.parentNode?.insertBefore(div, textNode);
     }
 
     function appendBreakLineBeforeNode(textNode: Node) {
