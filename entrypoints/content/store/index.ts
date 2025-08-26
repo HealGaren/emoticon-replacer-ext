@@ -3,7 +3,6 @@ import {Config} from "@/entrypoints/content/config.ts";
 import {devtools} from "zustand/middleware";
 import {disassemble} from "es-hangul";
 import {sortBy} from "lodash-es";
-import * as sea from "node:sea";
 
 interface EmoticonFetchRs {
     dccons: {
@@ -30,23 +29,35 @@ export interface EmoticonItem {
 }
 
 interface EmoticonPopupStore {
+    initialized: boolean;
     popupOpen: boolean;
+    fetchError: boolean;
     searchKeyword: string;
     emoticons: EmoticonItem[];
     emoticonMapByKeyword: Record<string, EmoticonItem>;
     fetchEmoticons: () => Promise<void>;
-    initialize: () => Promise<void>;
+    initialize: (keepPopupOpen?: boolean) => Promise<void>;
 }
+
+// function wait(ms: number) {
+//     return new Promise(resolve => setTimeout(resolve, ms));
+// }
 
 export const useEmoticonStore = create<EmoticonPopupStore>()(
     devtools((set, get ) => ({
+        initialized: false,
+        fetchError: false,
         popupOpen: false,
         searchKeyword: '',
         emoticons: [],
         emoticonMapByKeyword: {},
         fetchEmoticons: async () => {
-            const rsRaw = await fetch(`https://open-dccon-selector.update.sh/api/convert-dccon-url?type=bridge_bbcc&url=${Config.currentStreamer.emoticonBaseURL}/lib/dccon_list.js`);
-            if (rsRaw.ok) {
+            try {
+                const rsRaw = await fetch(`https://open-dccon-selector.update.sh/api/convert-dccon-url?type=bridge_bbcc&url=${Config.currentStreamer.emoticonBaseURL}/lib/dccon_list.js`);
+                if (!rsRaw.ok) {
+                    set({fetchError: true});
+                    return;
+                }
                 const rs = await rsRaw.json() as EmoticonFetchRs;
                 const emoticons: EmoticonItem[] = rs.dccons.map(it => ({
                     ...it,
@@ -58,20 +69,23 @@ export const useEmoticonStore = create<EmoticonPopupStore>()(
                 const emoticonMapByKeyword: Record<string, EmoticonItem> = {};
                 emoticons.forEach(emoticon => {
                     emoticon.keywords.forEach(keyword => emoticonMapByKeyword[keyword] = emoticon);
-                })
-
+                });
                 set({emoticons: emoticons, emoticonMapByKeyword});
-            } else {
-                console.error('Failed to fetch emoticons');
+            } catch (e) {
+                console.error(e);
+                set({fetchError: true});
             }
         },
-        initialize: async () => {
+        initialize: async (keepPopupOpen = false) => {
             set({
-                popupOpen: false,
+                fetchError: false,
+                initialized: false,
                 searchKeyword: '',
-                emoticons: []
+                emoticons: [],
+                ...keepPopupOpen ? {} : {popupOpen: false},
             });
             await get().fetchEmoticons();
+            set({initialized: true});
         }
     }))
 );

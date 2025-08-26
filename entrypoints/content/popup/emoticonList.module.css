@@ -10,6 +10,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     height: 100%;
     text-align: center;
     font-size: 1em;
@@ -19,6 +20,23 @@
     color: var(--Surface-Brand-Stronger);
     text-decoration: underline;
 }
+
+.emoticonList.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100%;
+    text-align: center;
+    font-size: 1em;
+}
+
+.emoticonList .retryButton {
+    cursor: pointer;
+    color: var(--Surface-Brand-Stronger);
+    text-decoration: underline;
+}
+
 
 @container (min-width: 420px) {
     .emoticonList {

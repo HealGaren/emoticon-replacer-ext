@@ -1,4 +1,4 @@
-import {getElementBySelector} from "@/entrypoints/content/dom-selectors.ts";
+import {getAllElementBySelector, getElementBySelector} from "@/entrypoints/content/dom-selectors.ts";
 import {EmoticonItem, useEmoticonStore} from "@/entrypoints/content/store";
 import style from "./replacedEmoticon.module.css";
 import {ElementSelector} from "@/entrypoints/content/types.ts";
@@ -58,8 +58,8 @@ export function registerChatListEmoticonReplacer(chatList: HTMLElement, chatMess
         textNode.parentNode?.insertBefore(breakLine, textNode);
     }
 
-    function onChatTextAdded(textNode: Node) {
-        const emoticonMapByKeyword = useEmoticonStore.getState().emoticonMapByKeyword;
+    function replaceTextNodeToEmoticon(textNode: Node) {
+        const {emoticonMapByKeyword} = useEmoticonStore.getState();
 
         const match = textNode.textContent?.match(/^~([^~\s]+)(?:~([^~\s]+))?$/);
         if (!match) return;
@@ -88,6 +88,10 @@ export function registerChatListEmoticonReplacer(chatList: HTMLElement, chatMess
     }
 
     const observer = new MutationObserver((mutations) => {
+        const {initialized} = useEmoticonStore.getState();
+        if (!initialized) {
+            return;
+        }
         mutations.forEach((mutation) => {
             mutation.addedNodes.forEach((node) => {
                 if (node instanceof Element) {
@@ -96,7 +100,7 @@ export function registerChatListEmoticonReplacer(chatList: HTMLElement, chatMess
                         return;
                     }
                     if (message.childNodes.length === 1 && message.childNodes[0].nodeType === Node.TEXT_NODE) {
-                        onChatTextAdded(message.childNodes[0]);
+                        replaceTextNodeToEmoticon(message.childNodes[0]);
                     }
                 }
             });
@@ -105,7 +109,23 @@ export function registerChatListEmoticonReplacer(chatList: HTMLElement, chatMess
 
     observer.observe(chatList, {childList: true, subtree: true});
 
+    // 로딩이 늦는 경우를 대비해 로딩 완료 후 한 번 일괄 변환
+    const replaceAllEmoticonManually = () => {
+        getAllElementBySelector(chatList, chatMessageSelector).forEach(message => {
+            if (message.childNodes.length === 1 && message.childNodes[0].nodeType === Node.TEXT_NODE) {
+                replaceTextNodeToEmoticon(message.childNodes[0]);
+            }
+        });
+    };
+
+    let unsubscribeStore = useEmoticonStore.subscribe((state, prevState) => {
+        if (!prevState.initialized && state.initialized) {
+            replaceAllEmoticonManually();
+        }
+    });
+
     return () => {
         observer.disconnect();
+        unsubscribeStore();
     }
 }

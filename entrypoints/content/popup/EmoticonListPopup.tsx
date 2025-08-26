@@ -10,6 +10,7 @@ export interface EmoticonListPopupOptions {
 export const EmoticonListPopup = ({options}: {options: EmoticonListPopupOptions}) => {
     const store = useEmoticonStore();
 
+    console.log('popup open: ', store.popupOpen);
     if (!store.popupOpen) {
         return null;
     }

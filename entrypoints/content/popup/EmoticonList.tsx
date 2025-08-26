@@ -1,4 +1,4 @@
-import {EmoticonItem, useSearchedEmoticonList} from "@/entrypoints/content/store";
+import {EmoticonItem, useEmoticonStore, useSearchedEmoticonList} from "@/entrypoints/content/store";
 import style from "./emoticonList.module.css";
 import React from "react";
 import {Config} from "@/entrypoints/content/config.ts";
@@ -35,22 +35,46 @@ const EmoticonItem = ({emoticon, onClick}: {emoticon: EmoticonItem, onClick: (em
 }
 
 export const EmoticonList = ({onItemClick}: {onItemClick: (emoticon: EmoticonItem) => void}) => {
+    const store = useEmoticonStore();
     const emoticonList = useSearchedEmoticonList();
-    const isEmpty = emoticonList.length === 0;
+
+    const handleRetryClick = () => {
+        store.initialize(true);
+    };
+
+    if (store.fetchError) {
+        return (
+            <div className={[style.emoticonList, style.error].join(' ')}>
+                이모티콘 목록을 불러오지 못했습니다.<br/>
+                <div className={style.retryButton} key="retry" onClick={handleRetryClick}>다시 시도</div>
+            </div>
+        );
+    }
+    if (!store.initialized) {
+        return (
+            <div className={[style.emoticonList, style.empty].join(' ')}>
+                이모티콘을 불러오는 중입니다.
+                <div className={style.retryButton} style={{display: 'none'}} key="retry" onClick={handleRetryClick}>다시 시도</div>
+            </div>
+        );
+    }
+    if (emoticonList.length === 0) {
+        return (
+            <div className={[style.emoticonList, style.empty].join(' ')}>
+                검색 결과가 없어요 ㅜㅜ<br/>
+                <a href={Config.currentStreamer.externalSelectorSiteLink} target="_blank">여기</a>서 찾아보시거나<br/>
+                버그로 보이면 <a href={Config.bugReportLink} target="_blank">버그 리포트</a>를 남겨주세요!
+                <div className={style.retryButton} style={{display: 'none'}} key="retry" onClick={handleRetryClick}>다시 시도</div>
+            </div>
+        );
+    }
 
     return (
-        <div className={style.emoticonList + (isEmpty ? ` ${style.empty}` : '')}>
-            {emoticonList.length > 0 ? emoticonList.map(it => (
+        <div className={style.emoticonList}>
+            {emoticonList.map(it => (
                 <EmoticonItem emoticon={it} key={it.keywords[0]} onClick={onItemClick}/>
-            )) : (
-                <>
-                    <div>
-                        검색 결과가 없어요 ㅜㅜ<br/>
-                        <a href={Config.currentStreamer.externalSelectorSiteLink} target="_blank">여기</a>서 찾아보시거나<br/>
-                        버그로 보이면 <a href={Config.bugReportLink} target="_blank">버그 리포트</a>를 남겨주세요!
-                    </div>
-                </>
-            )}
+            ))}
+            <div className={style.retryButton} style={{display: 'none'}} key="retry" onClick={handleRetryClick}>다시 시도</div>
         </div>
     );
 }

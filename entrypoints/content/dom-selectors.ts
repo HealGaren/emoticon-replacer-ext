@@ -32,6 +32,19 @@ export function getElementBySelector<T extends Element>(rootNode: ParentNode, se
     return (target as T) || null;
 }
 
+export function getAllElementBySelector<T extends Element>(rootNode: ParentNode, selector: ElementSelector): T[] {
+    if (isCSSSelector(selector)) {
+        return Array.from(rootNode.querySelectorAll(selector.css)) as T[];
+    }
+    const nodes = evaluateXPath(rootNode as unknown as Node, selector.xpath);
+    const root = rootNode as unknown as Node;
+    if (root.nodeType === Node.DOCUMENT_NODE) {
+        return nodes as T[];
+    }
+    return nodes.filter((n) => n === root || root.contains(n)) as T[];
+}
+
+
 export function elementMatchesOrContains(element: Element, selector: ElementSelector): boolean {
     if (isCSSSelector(selector)) {
         return element.matches(selector.css) || !!element.querySelector(selector.css);
