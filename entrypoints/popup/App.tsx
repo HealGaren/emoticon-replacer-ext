@@ -4,8 +4,13 @@ function App() {
 
   return (
     <>
-      <div>
-          커스터마이징 설정 기능을 준비 중입니다.
+      <div className="App">
+          <h2>
+              Emoticon Replacer Extension
+          </h2>
+          <div>
+              커스터마이징 기능은 준비 중입니다.
+          </div>
       </div>
     </>
   );
