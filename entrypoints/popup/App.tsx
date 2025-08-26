@@ -27,6 +27,7 @@ function App() {
       </div>
       <p className="read-the-docs">
         Click on the WXT and React logos to learn more
+          배포 제대로 됐나 확인
       </p>
     </>
   );
