@@ -1,3 +1,30 @@
-# WXT + React
+# Emoticon Replacer Extension
 
-This template should help get you started developing with React in WXT.
+각종 방송 플랫폼의 채팅창에 커스텀 이모티콘을 사용할 수 있도록 해주는 확장 프로그램입니다.  크로미움 브라우저에서 동작합니다.
+
+이모티콘이 방송에 송출되는 것은 이 프로그램과 별개입니다. 관련 기능이 지원되는 채팅 플랫폼 사용, 혹은 [browser-emoticon-replacer](https://github.com/HealGaren/browser-emoticon-replacer) 프로젝트를 활용해 세팅해야 합니다.
+
+> 본 확장 프로그램의 개발과 운영은 네이버 혹은 치지직과 관련 없습니다.
+
+## Feature
+
+- 채팅 입력 창에서 `~`를 입력해 이모티콘을 검색하고 클릭 혹은 탭 키를 통해 자동완성시킬 수 있습니다.
+- 채팅 목록에서 이모티콘 구문 형식으로 입력된 채팅을 실제 이모티콘으로 치환해 보여줍니다.
+- 타인이 채팅으로 남긴 이모티콘을 클릭해서 복사할 수 있습니다.
+- 다시보기와 스튜디오 내에 노출되는 채팅에서도 관련 기능이 지원됩니다.
+
+## 참고
+
+현재는 아래 프로젝트로 세팅된 이모티콘 기준 정상 작동되도록 처리하고 있습니다.
+[JSAssist Open DCcon](https://github.com/rishubil/jsassist-open-dccon)
+
+서드파티 확장프로그램의 특성상 사이트의 기능 변경, 배포 등으로 인해 프로그램에 문제가 발생할 수 있습니다.
+
+## 문의 & 리포트
+
+버그 리포트, 프로그램 사용 문의, 방송인 추가 등의 지원이 필요한 경우 공식 창구는 Repository의 이슈 트래커를 활용해주세요.
+혹은 다른 연락 가능한 창구가 있다면 편하게 문의해주세요.
+
+## License
+
+MIT

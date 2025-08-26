@@ -46,7 +46,8 @@ export const EmoticonList = ({onItemClick}: {onItemClick: (emoticon: EmoticonIte
                 <>
                     <div>
                         검색 결과가 없어요 ㅜㅜ<br/>
-                        <a href={Config.currentStreamer.externalSelectorSiteLink} target="_blank">여기</a>서 찾아보시거나 문의 주세요
+                        <a href={Config.currentStreamer.externalSelectorSiteLink} target="_blank">여기</a>서 찾아보시거나<br/>
+                        버그로 보이면 <a href={Config.bugReportLink} target="_blank">버그 리포트</a>를 남겨주세요!
                     </div>
                 </>
             )}

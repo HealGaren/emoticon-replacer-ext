@@ -37,6 +37,7 @@ export const ConfigPerStreamer = {
 
 export const Config = { // TODO: 서버 기반 데이터로 중간에 패치 가능하게
     dispatchFakeEvent: true,
+    bugReportLink: 'https://github.com/HealGaren/emoticon-replacer-ext',
 
     monitor: {
         liveUrlPattern: "^\/(?:iframe\/)?live\/([^\/]+)",
