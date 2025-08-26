@@ -99,6 +99,22 @@ export function toSearchedEmoticonList(emoticons: EmoticonItem[], searchKeyword:
         if (it.hangulDisassembled.tags.some(tag => tag.includes(disassembledSearchKeyword))) {
             return true;
         }
+        // 완성형 기준 키워드에서 빼먹은 글자는 있어도 되지만 앞뒤 순서 자체는 다 맞는 경우 검색 허용
+        if (it.keywords.some(keyword => {
+            const searchKeywordChars = [...searchKeyword];
+            let currentPosition = 0;
+            for (const char of keyword) {
+                if (char === searchKeywordChars[currentPosition]) {
+                    currentPosition++;
+                }
+                if (currentPosition === searchKeywordChars.length) {
+                    return true;
+                }
+            }
+            return false;
+        })) {
+            return true;
+        }
         return false;
     });
 
