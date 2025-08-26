@@ -7,11 +7,11 @@
 
     height: 300px;
 
-    background: black;
     display: block;
-    z-index: 11;
+    z-index: 9;
 
-    border-radius: 8px;
-    border: 2px solid var(--Border-Neutral-Strong);
+    border-radius: 12px;
+    background-color: var(--Surface-Neutral-Weaker);
+    box-shadow: 0 6px 6px 0 var(--Shadow-Strong),0 6px 18px 6px var(--Shadow-Base);
 
 }

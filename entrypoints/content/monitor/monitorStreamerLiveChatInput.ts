@@ -1,22 +1,12 @@
 import {monitorURL} from "@/entrypoints/content/monitor/monitorURL.ts";
 import {monitorElement} from "@/entrypoints/content/monitor/monitorElement";
-import {ElementSelector} from "@/entrypoints/content/types.ts";
 import {attachReactPopup} from "@/entrypoints/content/popup/attachReactPopup.tsx";
 import {useEmoticonPopupStore} from "@/entrypoints/content/store";
+import {Config} from "@/entrypoints/content/config.ts";
+import {ContentScriptContext} from "wxt/utils/content-script-context";
 
-interface MonitorConfig {
-    urlPattern: string; // streamerId에 해당하는 그룹이 리턴되어야 함
-    popupContainerSelector: ElementSelector;
-    chatInputSelector: ElementSelector;
-}
 
-const config: MonitorConfig = {
-    urlPattern: "^\/live\/([^\/]+)",
-    popupContainerSelector: { css: '[class^="live_chatting_area__"]' },
-    chatInputSelector: { css: '[class^="live_chatting_input_input__"]' },
-}
-
-function registerChatInputEmoticonPopup(ctx: ContentScriptUi, popupContainer: HTMLElement, chatInput: HTMLElement) {
+function registerChatInputEmoticonPopup(ctx: ContentScriptContext, popupContainer: HTMLElement, chatInput: HTMLElement) {
     console.log('Chat input found:', chatInput);
 
     attachReactPopup(ctx, popupContainer);
@@ -41,6 +31,8 @@ function registerChatInputEmoticonPopup(ctx: ContentScriptUi, popupContainer: HT
         useEmoticonPopupStore.setState({emoticonKeyword: content});
     }
 
+    let startPosWhenShown: number | null = null;
+
     const checkTildes = (e: Event | MutationRecord[]) => {
         // ESC key press handler
         if (e instanceof KeyboardEvent && e.key === 'Escape') {
@@ -49,7 +41,6 @@ function registerChatInputEmoticonPopup(ctx: ContentScriptUi, popupContainer: HT
         }
 
         const selection = window.getSelection();
-        console.log('relatedTarget:', (e instanceof FocusEvent) && e.relatedTarget)
 
         if (!selection || selection.type !== 'Caret' || !selection.anchorNode || document.activeElement !== chatInput) {
             hidePopup();
@@ -94,10 +85,10 @@ function registerChatInputEmoticonPopup(ctx: ContentScriptUi, popupContainer: HT
         // Only show popup when ~ is directly typed
         if (e instanceof InputEvent && e.inputType === 'insertText' && e.data === '~') {
             showPopup(currentWord);
-        } else if (!currentWord.startsWith('~') || /\s/.test(e instanceof InputEvent ? e.data || '' : '')) {
+            startPosWhenShown = startPos;
+        } else if (!currentWord.startsWith('~') || /\s/.test(e instanceof InputEvent ? e.data || '' : '') || startPosWhenShown !== startPos) {
             hidePopup();
         }
-
 
         updatePopup(currentWord);
     };
@@ -106,7 +97,10 @@ function registerChatInputEmoticonPopup(ctx: ContentScriptUi, popupContainer: HT
     chatInput.addEventListener('click', checkTildes);
     chatInput.addEventListener('keyup', checkTildes);
 
-    document.addEventListener('click', (e) => {
+    const documentClickHandler = (e: MouseEvent) => {
+        if (!document.contains(chatInput)) {
+            return;
+        }
         const hasPreventBlurParent = (() => {
             let target: HTMLElement | null = e.target as HTMLElement;
             while (target) {
@@ -116,12 +110,14 @@ function registerChatInputEmoticonPopup(ctx: ContentScriptUi, popupContainer: HT
                 target = target.parentElement;
             }
             return false;
-        })();
-        
-        if (!chatInput.contains(e.target as Node) && !hasPreventBlurParent) {
+        });
+        console.log('chatInput Contains: ', chatInput.contains(e.target as Node), chatInput, e.target);
+        if (!chatInput.contains(e.target as Node) && !hasPreventBlurParent()) {
             hidePopup();
         }
-    });
+    };
+
+    document.addEventListener('click', documentClickHandler);
 
     const observer = new MutationObserver(checkTildes);
     observer.observe(chatInput, {
@@ -129,22 +125,28 @@ function registerChatInputEmoticonPopup(ctx: ContentScriptUi, popupContainer: HT
         characterData: true,
     });
 
-    return () => observer.disconnect();
+    return () => {
+        observer.disconnect();
+        chatInput.removeEventListener('input', checkTildes);
+        chatInput.removeEventListener('click', checkTildes);
+        chatInput.removeEventListener('keyup', checkTildes);
+        document.removeEventListener('click', documentClickHandler);
+    }
 }
 
-export function monitorStreamerLiveURLAndChatInput(ctx: ContentScriptUi) {
-    const liveURLPattern = new RegExp(config.urlPattern);
+export function monitorStreamerLiveURLAndChatInput(ctx: ContentScriptContext) {
+    const liveURLPattern = new RegExp(Config.monitor.urlPattern);
     return monitorURL(liveURLPattern, (streamerId) => {
         if (streamerId) {
             console.log(`Initializing for streamer: ${streamerId}`);
             return monitorElement(
                 document,
-                config.popupContainerSelector,
+                Config.monitor.popupContainerSelector,
                 {
                     onInit: popupContainer => {
                         return monitorElement(
                             document,
-                            config.chatInputSelector,
+                            Config.monitor.chatInputSelector,
                             {
                                 onInit: chatInput => {
                                     registerChatInputEmoticonPopup(ctx, popupContainer, chatInput);

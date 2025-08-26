@@ -1,27 +1,24 @@
 import {ElementSelector, MonitorElementOptions, MonitorStrategy} from "@/entrypoints/content/types.ts";
 import {monitorElementWithPolling} from "@/entrypoints/content/monitor/monitorElement/polling.ts";
 import {monitorElementWithMutation} from "@/entrypoints/content/monitor/monitorElement/mutation.ts";
+import {Config} from "@/entrypoints/content/config.ts";
 
-const MONITOR_ELEMENT_CONFIG = {
-    strategy: 'mutation' as MonitorStrategy,
-    defaultPollingInterval: 1000,
-};
 export function monitorElement<T extends HTMLElement>(
     rootNode: ParentNode,
     selector: ElementSelector,
     options: MonitorElementOptions
 ): () => void {
-    switch (MONITOR_ELEMENT_CONFIG.strategy) {
+    switch (Config.monitor.monitorElementStrategy) {
         case 'polling':
             return monitorElementWithPolling<T>(
                 rootNode,
                 selector,
                 options,
-                MONITOR_ELEMENT_CONFIG.defaultPollingInterval
+                Config.monitor.defaultPollingInterval
             );
         case 'mutation':
             return monitorElementWithMutation<T>(rootNode, selector, options);
         default:
-            throw new Error(`Unsupported monitor strategy: ${MONITOR_ELEMENT_CONFIG.strategy}`);
+            throw new Error(`Unsupported monitor strategy: ${Config.monitor.monitorElementStrategy}`);
     }
 }
