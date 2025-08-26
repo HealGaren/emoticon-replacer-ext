@@ -1,0 +1,127 @@
+.emoticonList:not(.empty) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+    font-size: 0.6em;
+}
+
+.emoticonList.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+}
+
+.emoticonList.empty a {
+    color: var(--Surface-Brand-Stronger);
+    text-decoration: underline;
+}
+
+@container (min-width: 360px) {
+    .emoticonList {
+        grid-template-columns: repeat(5, 1fr);
+        font-size: 0.7em;
+    }
+}
+
+@container (min-width: 550px) {
+    .emoticonList {
+        grid-template-columns: repeat(6, 1fr);
+        font-size: 0.8em;
+    }
+}
+
+@container (min-width: 750px) {
+    .emoticonList {
+        grid-template-columns: repeat(7, 1fr);
+        font-size: 0.9em;
+    }
+}
+
+@container (min-width: 950px) {
+    .emoticonList {
+        grid-template-columns: repeat(8, 1fr);
+        font-size: 1.0em;
+    }
+}
+
+@container (min-width: 1200px) {
+    .emoticonList {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        font-size: 1.1em;
+    }
+}
+
+
+.emoticonItem {
+    position: relative;
+    display: flex;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 3px;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+}
+
+.emoticonItem .image {
+    width: 100%;
+    height: auto;
+    opacity: 1;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    object-fit: cover;
+}
+
+.emoticonItem:hover .image {
+    transform: scale(1.1);
+    opacity: 0.5;
+}
+
+.emoticonItem .description {
+    padding: 12px 0.5em;
+    display: flex;
+    flex-direction: column;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: -0.6em;
+    transform: translateY(calc(100% - 2em - 0.6em - 8px));
+
+    transition: transform 0.3s ease;
+
+    /* 자연스러운 검은 그라데이션 (위는 투명, 중간부터는 검정)*/
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 7%, rgba(0, 0, 0, 0.5) 12%, rgba(0, 0, 0, 0.6) 15%);
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.emoticonItem:hover .description {
+    transform: translateY(-0.5em);
+}
+
+.emoticonItem .description span {
+}
+
+.emoticonItem .description .additional {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.emoticonItem:hover .description .additional {
+    opacity: 1;
+}
+
+.emoticonItem .description .tagContainer {
+    font-size: 0.9em;
+    margin-top: 1.5em;
+    white-space: normal;
+    color: var(--Content-Neutral-Cool-Base);
+}
+
+.emoticonItem .description .tag {
+}

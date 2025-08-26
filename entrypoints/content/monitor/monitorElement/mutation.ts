@@ -9,6 +9,8 @@ export function monitorElementWithMutation<T extends HTMLElement>(
     let currentElement: T | null = null;
     let observer: MutationObserver | null = null;
 
+    let prevCleanup: (() => void) | null = null;
+
     const syncWithCurrentMatch = () => {
         const candidate = getElementBySelector<T>(rootNode, selector);
 
@@ -17,9 +19,12 @@ export function monitorElementWithMutation<T extends HTMLElement>(
                 options.onDestroy();
             }
             currentElement = candidate;
-            options.onInit(candidate);
+            prevCleanup?.();
+            prevCleanup = options.onInit(candidate);
         } else if (!candidate && currentElement) {
             currentElement = null;
+            prevCleanup?.();
+            prevCleanup = null;
             options.onDestroy();
         }
     };
@@ -43,6 +48,10 @@ export function monitorElementWithMutation<T extends HTMLElement>(
     };
 
     const cleanup = () => {
+        if (prevCleanup) {
+            prevCleanup?.();
+            prevCleanup = null;
+        }
         if (observer) {
             observer.disconnect();
             observer = null;

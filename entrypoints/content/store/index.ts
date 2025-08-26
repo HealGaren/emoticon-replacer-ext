@@ -1,26 +1,102 @@
 import {create} from "zustand";
 import {Config} from "@/entrypoints/content/config.ts";
 import {devtools} from "zustand/middleware";
+import {disassemble} from "es-hangul";
+import {sortBy} from "lodash-es";
+import * as sea from "node:sea";
+
+interface EmoticonFetchRs {
+    dccons: {
+        keywords: string[];
+        path: string;
+        tags: string[];
+        hangulDisassembled: {
+            // TODO: 양이 많아지면 트라이 구조로 개선 - 근데 일반적으로는 할 일 없을듯
+            keywords: string[];
+            tags: string[];
+        }
+    }[];
+}
+
+export interface EmoticonItem {
+    keywords: string[];
+    path: string;
+    tags: string[];
+    hangulDisassembled: {
+        // TODO: 양이 많아지면 트라이 구조로 개선 - 근데 일반적으로는 할 일 없을듯
+        keywords: string[];
+        tags: string[];
+    }
+}
 
 interface EmoticonPopupStore {
     popupOpen: boolean;
-    emoticonKeyword: string;
-    emoticons: [];
+    searchKeyword: string;
+    emoticons: EmoticonItem[];
     fetchEmoticons: () => Promise<void>;
+    initialize: () => Promise<void>;
 }
 
 export const useEmoticonPopupStore = create<EmoticonPopupStore>()(
-    devtools((set ) => ({
+    devtools((set, get ) => ({
         popupOpen: false,
-        emoticonKeyword: '',
+        searchKeyword: '',
         emoticons: [],
         fetchEmoticons: async () => {
-            const rs = await fetch(`https://open-dccon-selector.update.sh/api/convert-dccon-url?type=bridge_bbcc&url=${Config.emoticonBaseURL}/lib/dccon_list.js`);
-            if (rs.ok) {
-                set({emoticons: await rs.json()});
+            const rsRaw = await fetch(`https://open-dccon-selector.update.sh/api/convert-dccon-url?type=bridge_bbcc&url=${Config.currentStreamer.emoticonBaseURL}/lib/dccon_list.js`);
+            if (rsRaw.ok) {
+                const rs = await rsRaw.json() as EmoticonFetchRs;
+                const items: EmoticonItem[] = rs.dccons.map(it => ({
+                    ...it,
+                    hangulDisassembled: {
+                        keywords: it.keywords.map(it => disassemble(it)),
+                        tags: it.tags.map(it => disassemble(it))
+                    }
+                }));
+                set({emoticons: items});
             } else {
                 console.error('Failed to fetch emoticons');
             }
+        },
+        initialize: async () => {
+            set({
+                popupOpen: false,
+                searchKeyword: '',
+                emoticons: []
+            });
+            await get().fetchEmoticons();
         }
     }))
 );
+
+export function toSearchedEmoticonList(emoticons: EmoticonItem[], searchKeyword: string) {
+    const disassembledSearchKeyword = disassemble(searchKeyword);
+    const filteredEmoticons = emoticons.filter(it => {
+        if (it.hangulDisassembled.keywords.some(keyword => keyword.includes(disassembledSearchKeyword))) {
+            return true;
+        }
+        if (it.hangulDisassembled.tags.some(tag => tag.includes(disassembledSearchKeyword))) {
+            return true;
+        }
+        return false;
+    });
+
+    const filteredEmoticonsWithSearchScore = filteredEmoticons.map(it => {
+        // TODO: 필요하면 타 기준(중간부터 일치하는 경우와 시작부터 일치하는 경우 등...) 추가
+        const exactKeywordMatch = it.keywords.some(keyword => keyword === searchKeyword);
+        const exactTagMatch = it.tags.some(tag => tag === searchKeyword);
+        return {
+            emoticon: it,
+            exactKeywordMatch,
+            exactTagMatch
+        };
+    });
+
+    return sortBy(filteredEmoticonsWithSearchScore, it => it.exactTagMatch)
+        .map(it => it.emoticon);
+}
+
+export const useSearchedEmoticonList = () => {
+    const {emoticons, searchKeyword} = useEmoticonPopupStore();
+    return toSearchedEmoticonList(emoticons, searchKeyword);
+}

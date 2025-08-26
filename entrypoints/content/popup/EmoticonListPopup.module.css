@@ -14,4 +14,13 @@
     background-color: var(--Surface-Neutral-Weaker);
     box-shadow: 0 6px 6px 0 var(--Shadow-Strong),0 6px 18px 6px var(--Shadow-Base);
 
+    padding: 10px;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    container-type: size;
+}
+
+.emoticonListPopup::-webkit-scrollbar {
+    display: none;
 }

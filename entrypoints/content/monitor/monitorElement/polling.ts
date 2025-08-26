@@ -12,13 +12,18 @@ export function monitorElementWithPolling<T extends HTMLElement>(
 
     const interval = options.pollingInterval ?? defaultPollingInterval;
 
+    let prevCleanup: (() => void) | null = null;
+
     const tick = () => {
         const element = getElementBySelector<T>(rootNode, selector);
 
         if (element && !currentElement) {
             currentElement = element;
-            options.onInit(element);
+            prevCleanup?.(); // TODO: 기존 element가 없다면 불가능한 상황 같은데? 체크해봐야 함
+            prevCleanup = options.onInit(element);
         } else if (!element && currentElement) {
+            prevCleanup?.();
+            prevCleanup = null;
             currentElement = null;
             options.onDestroy();
         }
@@ -30,6 +35,10 @@ export function monitorElementWithPolling<T extends HTMLElement>(
     };
 
     const cleanup = () => {
+        if (prevCleanup) {
+            prevCleanup?.();
+            prevCleanup = null;
+        }
         if (pollingId) {
             clearInterval(pollingId);
             pollingId = null;

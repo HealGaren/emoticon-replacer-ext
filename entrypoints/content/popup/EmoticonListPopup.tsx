@@ -1,7 +1,13 @@
 import style from './EmoticonListPopup.module.css';
-import {useEmoticonPopupStore} from "@/entrypoints/content/store";
+import {EmoticonItem, useEmoticonPopupStore} from "@/entrypoints/content/store";
+import {EmoticonList} from "@/entrypoints/content/popup/EmoticonList.tsx";
 
-export const EmoticonListPopup = () => {
+export interface EmoticonListPopupOptions {
+    onItemClick: (emoticon: EmoticonItem) => void;
+}
+
+
+export const EmoticonListPopup = ({options}: {options: EmoticonListPopupOptions}) => {
     const store = useEmoticonPopupStore();
 
     if (!store.popupOpen) {
@@ -9,6 +15,8 @@ export const EmoticonListPopup = () => {
     }
 
     return (
-        <div className={style.emoticonListPopup} data-preventbluremoticonpopup>{store.emoticonKeyword}</div>
+        <div className={style.emoticonListPopup} data-preventbluremoticonpopup>
+            <EmoticonList onItemClick={options.onItemClick}/>
+        </div>
     );
 }
