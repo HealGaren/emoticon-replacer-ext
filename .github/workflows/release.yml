@@ -1,0 +1,48 @@
+name: Release Extension
+
+on:
+  push:
+    branches:
+      - 'release/v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build zip files
+        run: |
+          pnpm zip
+          pnpm zip:firefox
+
+      - name: Get version from branch
+        id: get_version
+        run: |
+          echo "branch=${GITHUB_REF#refs/heads/release/}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release and upload zips
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.branch }}
+          name: Release ${{ steps.get_version.outputs.branch }}
+          files: .output/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

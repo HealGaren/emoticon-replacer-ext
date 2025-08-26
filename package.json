@@ -1,6 +1,6 @@
 {
-  "name": "emoticon-replacer-ext",
-  "description": "Custom Emoticon Replacer & Picker with chromium browser",
+  "name": "EmoticonReplacer - 방송 채팅 이모티콘 변환기",
+  "description": "~이모티콘 형식으로 작성된 채팅을 이모티콘 이미지로 변환하며, 이모티콘 선택 팝업을 제공합니다.",
   "private": true,
   "version": "0.1.0",
   "type": "module",
