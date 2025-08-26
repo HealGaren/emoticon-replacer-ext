@@ -12,10 +12,20 @@ function addURLChangeListeners(callback: () => void) {
     };
 }
 
-export function monitorURL(pattern: URLPattern, callback: (match: string | null) => (() => void) | null) {
+export function monitorURL(patterns: URLPattern[], callback: (matchedPattern: URLPattern | null, streamerId: string | null) => (() => void) | null) {
     function handleURLChange() {
-        const match = window.location.pathname.match(pattern);
-        const nextCleanup = callback(match ? match[1] : null);
+        let matchedResult: RegExpMatchArray | null = null;
+        let matchedPattern: URLPattern | null = null;
+
+        for (const pattern of patterns) {
+            const currentMatchResult = window.location.pathname.match(pattern.regex);
+            if (currentMatchResult) {
+                matchedPattern = pattern;
+                matchedResult = currentMatchResult;
+                break;
+            }
+        }
+        const nextCleanup = callback(matchedPattern, matchedResult?.[1] ?? null);
         if (cleanup) cleanup();
         cleanup = nextCleanup;
     }

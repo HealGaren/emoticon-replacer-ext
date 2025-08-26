@@ -1,7 +1,14 @@
 import {ElementSelector, MonitorStrategy} from "@/entrypoints/content/types.ts";
 
 interface MonitorConfig {
-    urlPattern: string; // streamerId에 해당하는 그룹이 리턴되어야 함
+    liveUrlPattern: string; // streamerId에 해당하는 그룹이 리턴되어야 함
+    vodUrlPattern: string; // 마찬가지
+    chatListSelector: ElementSelector;
+    chatMessageSelector: ElementSelector;
+    vodChatListSelector: ElementSelector;
+    vodChatMessageSelector: ElementSelector;
+    vodStreamerIdLinkSelector: ElementSelector;
+    vodStreamerIdPattern: string;
     popupContainerSelector: ElementSelector;
     chatInputSelector: ElementSelector;
     monitorElementStrategy: MonitorStrategy;
@@ -29,15 +36,26 @@ export const ConfigPerStreamer = {
 } as Record<string, StreamerConfig>;
 
 export const Config = { // TODO: 서버 기반 데이터로 중간에 패치 가능하게
-    dispatchFakeEvent: false,
+    dispatchFakeEvent: true,
 
     monitor: {
-        urlPattern: "^\/live\/([^\/]+)",
+        liveUrlPattern: "^\/live\/([^\/]+)",
+        vodUrlPattern: "^\/video\/([^\/]+)",
+        chatListSelector: {css: '[class^="live_chatting_list_wrapper__"]'},
+        vodChatListSelector: {css: '[class^="vod_chatting_list__"]'},
+        chatMessageSelector: {css: '[class^="live_chatting_message_text__"]'},
+        vodChatMessageSelector: {css: '[class^="live_chatting_message_text__"]'},
+        vodStreamerIdLinkSelector: {css: '[class^="video_information_link__"]'},
+        vodStreamerIdPattern: "(?:https?:\/\/[^\/]+\/|\/)?([^\/]+)\/?$", // https://chzzk.naver.com/ffc6c5bc935d5bb93ce1439d3a8f0fab 혹은 /ffc6c5bc935d5bb93ce1439d3a8f0fab 혹은 ffc6c5bc935d5bb93ce1439d3a8f0fab, 혹은 맨 뒤에 /가 하나 붙어도 모두 맨 뒷 문자열이 잘 추출되도록
         popupContainerSelector: {css: '[class^="live_chatting_area__"]'},
         chatInputSelector: {css: '[class^="live_chatting_input_input__"]'},
         monitorElementStrategy: 'mutation' as MonitorStrategy,
         defaultPollingInterval: 1000,
     } satisfies MonitorConfig,
+
+    replace: {
+        appendBreakLine: true
+    },
 
     currentStreamerId: null as string | null,
 

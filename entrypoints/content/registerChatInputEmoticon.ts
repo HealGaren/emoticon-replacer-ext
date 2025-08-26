@@ -1,30 +1,27 @@
-import {monitorURL} from "@/entrypoints/content/monitor/monitorURL.ts";
-import {monitorElement} from "@/entrypoints/content/monitor/monitorElement";
-import {attachReactPopup} from "@/entrypoints/content/popup/attachReactPopup.tsx";
-import {toSearchedEmoticonList, useEmoticonPopupStore} from "@/entrypoints/content/store";
-import {Config, ConfigPerStreamer} from "@/entrypoints/content/config.ts";
 import {ContentScriptContext} from "wxt/utils/content-script-context";
+import {Config} from "@/entrypoints/content/config.ts";
+import {toSearchedEmoticonList, useEmoticonStore} from "@/entrypoints/content/store";
+import {attachReactPopup} from "@/entrypoints/content/popup/attachReactPopup.tsx";
 
-
-function registerChatInputEmoticonPopup(ctx: ContentScriptContext, popupContainer: HTMLElement, chatInput: HTMLElement) {
+export function registerChatInputEmoticonPopup(ctx: ContentScriptContext, popupContainer: HTMLElement, chatInput: HTMLElement) {
 
     let lastStartPos: number | null = null;
     let lastEndPos: number | null = null;
     let lastSelectionTextNode: Node | null = null;
 
     const hidePopup = () => {
-        useEmoticonPopupStore.setState({popupOpen: false});
+        useEmoticonStore.setState({popupOpen: false});
         lastStartPos = null;
         lastEndPos = null;
         lastSelectionTextNode = null;
     };
 
     const showPopup = (content: string) => {
-        useEmoticonPopupStore.setState({popupOpen: true, searchKeyword: content.slice(1)});
+        useEmoticonStore.setState({popupOpen: true, searchKeyword: content.slice(1)});
     }
 
     const updatePopup = (content: string) => {
-        useEmoticonPopupStore.setState({searchKeyword: content.slice(1)});
+        useEmoticonStore.setState({searchKeyword: content.slice(1)});
     }
 
     const checkTildes = (e: Event | MutationRecord[]) => {
@@ -124,7 +121,7 @@ function registerChatInputEmoticonPopup(ctx: ContentScriptContext, popupContaine
         if (e.key === 'Tab' && lastSelectionTextNode && lastStartPos !== null && lastEndPos !== null) {
             e.preventDefault();
 
-            const {emoticons, searchKeyword} = useEmoticonPopupStore.getState();
+            const {emoticons, searchKeyword} = useEmoticonStore.getState();
             const searchedEmoticons = toSearchedEmoticonList(emoticons, searchKeyword);
             replaceEmoticonText(searchedEmoticons[0]);
             return;
@@ -174,49 +171,4 @@ function registerChatInputEmoticonPopup(ctx: ContentScriptContext, popupContaine
         document.removeEventListener('click', documentClickHandler);
         reactPopupCleanup();
     }
-}
-
-export function monitorStreamerLiveURLAndChatInput(ctx: ContentScriptContext) {
-    const liveURLPattern = new RegExp(Config.monitor.urlPattern);
-    return monitorURL(liveURLPattern, (streamerId) => {
-        if (streamerId) {
-            if (!(streamerId in ConfigPerStreamer)){
-                console.log('unsupport streamer: ', streamerId);
-                return null;
-            }
-            Config.currentStreamerId = streamerId;
-            useEmoticonPopupStore.getState().initialize();
-
-            const cleanupMonitorElement = monitorElement(
-                document,
-                Config.monitor.popupContainerSelector,
-                {
-                    onInit: popupContainer => {
-                        console.log('emoticon- Popup container initialized');
-
-                        return monitorElement(
-                            document,
-                            Config.monitor.chatInputSelector,
-                            {
-                                onInit: chatInput => {
-                                    return registerChatInputEmoticonPopup(ctx, popupContainer, chatInput);
-                                },
-                                onDestroy: () => {
-                                }
-                            }
-                        )
-                    },
-                    onDestroy: () => {
-                        console.log('emoticon- Popup container removed');
-                    }
-                }
-            );
-
-            return () => {
-                cleanupMonitorElement();
-                Config.currentStreamerId = null;
-            }
-        }
-        return null;
-    });
 }

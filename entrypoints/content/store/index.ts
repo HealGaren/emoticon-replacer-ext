@@ -33,27 +33,34 @@ interface EmoticonPopupStore {
     popupOpen: boolean;
     searchKeyword: string;
     emoticons: EmoticonItem[];
+    emoticonMapByKeyword: Record<string, EmoticonItem>;
     fetchEmoticons: () => Promise<void>;
     initialize: () => Promise<void>;
 }
 
-export const useEmoticonPopupStore = create<EmoticonPopupStore>()(
+export const useEmoticonStore = create<EmoticonPopupStore>()(
     devtools((set, get ) => ({
         popupOpen: false,
         searchKeyword: '',
         emoticons: [],
+        emoticonMapByKeyword: {},
         fetchEmoticons: async () => {
             const rsRaw = await fetch(`https://open-dccon-selector.update.sh/api/convert-dccon-url?type=bridge_bbcc&url=${Config.currentStreamer.emoticonBaseURL}/lib/dccon_list.js`);
             if (rsRaw.ok) {
                 const rs = await rsRaw.json() as EmoticonFetchRs;
-                const items: EmoticonItem[] = rs.dccons.map(it => ({
+                const emoticons: EmoticonItem[] = rs.dccons.map(it => ({
                     ...it,
                     hangulDisassembled: {
                         keywords: it.keywords.map(it => disassemble(it)),
                         tags: it.tags.map(it => disassemble(it))
                     }
                 }));
-                set({emoticons: items});
+                const emoticonMapByKeyword: Record<string, EmoticonItem> = {};
+                emoticons.forEach(emoticon => {
+                    emoticon.keywords.forEach(keyword => emoticonMapByKeyword[keyword] = emoticon);
+                })
+
+                set({emoticons: emoticons, emoticonMapByKeyword});
             } else {
                 console.error('Failed to fetch emoticons');
             }
@@ -97,6 +104,6 @@ export function toSearchedEmoticonList(emoticons: EmoticonItem[], searchKeyword:
 }
 
 export const useSearchedEmoticonList = () => {
-    const {emoticons, searchKeyword} = useEmoticonPopupStore();
+    const {emoticons, searchKeyword} = useEmoticonStore();
     return toSearchedEmoticonList(emoticons, searchKeyword);
 }

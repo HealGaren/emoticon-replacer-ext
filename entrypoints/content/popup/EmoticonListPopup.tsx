@@ -1,5 +1,5 @@
 import style from './EmoticonListPopup.module.css';
-import {EmoticonItem, useEmoticonPopupStore} from "@/entrypoints/content/store";
+import {EmoticonItem, useEmoticonStore} from "@/entrypoints/content/store";
 import {EmoticonList} from "@/entrypoints/content/popup/EmoticonList.tsx";
 
 export interface EmoticonListPopupOptions {
@@ -8,7 +8,7 @@ export interface EmoticonListPopupOptions {
 
 
 export const EmoticonListPopup = ({options}: {options: EmoticonListPopupOptions}) => {
-    const store = useEmoticonPopupStore();
+    const store = useEmoticonStore();
 
     if (!store.popupOpen) {
         return null;
