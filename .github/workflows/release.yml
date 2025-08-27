@@ -40,6 +40,41 @@ jobs:
         run: |
           echo "branch=${GITHUB_REF#refs/heads/release/}" >> $GITHUB_OUTPUT
 
+      - name: Download existing userscript files from gh-pages
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git clone --depth 1 --branch gh-pages https://github.com/${GITHUB_REPOSITORY}.git ghpages-tmp || true
+          mkdir -p userscript
+          cp -r ghpages-tmp/userscript/* userscript/ 2>/dev/null || true
+
+      - name: Prepare userscript for GitHub Pages
+        run: |
+          mkdir -p userscript
+          VERSION=${{ steps.get_version.outputs.branch }}
+          VERSION_NO_V=${VERSION#v}
+          cp .output/emoticon-replacer-${VERSION_NO_V}-userscript.js userscript/${VERSION}.js
+
+      - name: Update latest.js if this is the highest stable version
+        if: startsWith(steps.get_version.outputs.branch, 'v') && !contains(steps.get_version.outputs.branch, '-')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCHES=$(gh api repos/${GITHUB_REPOSITORY}/branches --jq '.[].name' | grep '^release/v[0-9]\+\.[0-9]\+\.[0-9]\+$')
+          VERSIONS=$(echo "$BRANCHES" | sed 's/release\/v//')
+          LATEST_VERSION=$(echo "$VERSIONS" | sort -V | tail -n1)
+          if [ "$LATEST_VERSION" = "${{ steps.get_version.outputs.branch }}" ]; then
+            cp userscript/${{ steps.get_version.outputs.branch }}.js userscript/latest.js
+          fi
+
+      - name: Deploy userscript to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: userscript
+          destination_dir: userscript
+          keep_files: true
+
       - name: Create GitHub Release and upload zips
         uses: softprops/action-gh-release@v2
         with:
