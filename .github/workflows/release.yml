@@ -57,14 +57,14 @@ jobs:
 
       - name: Update latest.js if this is the highest stable version
         if: startsWith(steps.get_version.outputs.branch, 'v') && !contains(steps.get_version.outputs.branch, '-')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BRANCHES=$(gh api repos/${GITHUB_REPOSITORY}/branches --jq '.[].name' | grep '^release/v[0-9]\+\.[0-9]\+\.[0-9]\+$')
-          VERSIONS=$(echo "$BRANCHES" | sed 's/release\/v//')
-          LATEST_VERSION=$(echo "$VERSIONS" | sort -V | tail -n1)
-          if [ "$LATEST_VERSION" = "${{ steps.get_version.outputs.branch }}" ]; then
-            cp userscript/${{ steps.get_version.outputs.branch }}.js userscript/latest.js
+          VERSION=${{ steps.get_version.outputs.branch }}
+          mkdir -p userscript
+          cd userscript
+          FILES=$(ls v*.*.*.js 2>/dev/null || true)
+          LATEST_VERSION=$(echo "$FILES" | sed 's/v\([0-9.]*\)\.js/\1/' | sort -V | tail -n1)
+          if [ -n "$LATEST_VERSION" ] && [ "v$LATEST_VERSION" = "$VERSION" ]; then
+            cp ${VERSION}.js latest.js
           fi
 
       - name: Deploy userscript to GitHub Pages
