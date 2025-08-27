@@ -32,6 +32,9 @@ jobs:
           pnpm zip
           pnpm zip:firefox
 
+      - name: Make userscript.js
+        run: pnpm make:userscript
+
       - name: Get version from branch
         id: get_version
         run: |
@@ -42,7 +45,8 @@ jobs:
         with:
           tag_name: ${{ steps.get_version.outputs.branch }}
           name: Release ${{ steps.get_version.outputs.branch }}
-          files: .output/*.zip
+          files: |
+            .output/*.zip
+            .output/emoticon-replacer-*-userscript.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
