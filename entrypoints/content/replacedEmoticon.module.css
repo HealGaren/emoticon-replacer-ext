@@ -8,8 +8,9 @@
 }
 
 .emoticonWrap img.replacedEmoticon {
-    height: 100px;
-    width: auto;
+    /*우선순위 이슈로 inline style로 이동함*/
+    /*height: 100px;*/
+    /*width: auto;*/
     transition: transform 0.3s ease;
 }
 

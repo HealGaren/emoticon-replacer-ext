@@ -15,6 +15,10 @@ export function registerChatListEmoticonReplacer(chatList: HTMLElement, chatMess
         img.className = style.replacedEmoticon;
         img.src = emoticon.path;
         img.alt = keyword;
+
+        img.style.height = '100px';
+        img.style.width = 'auto';
+
         div.appendChild(img);
 
         const descriptionContainer = document.createElement('div');
