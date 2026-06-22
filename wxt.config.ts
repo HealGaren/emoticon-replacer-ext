@@ -7,7 +7,7 @@ export default defineConfig({
         '@wxt-dev/auto-icons'
     ],
     manifest: {
-        permissions: ['<all_urls>'],
+        permissions: ['<all_urls>', 'storage'],
         // host_permissions: ['']
     }
 });

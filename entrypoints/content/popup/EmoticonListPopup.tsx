@@ -16,7 +16,7 @@ export const EmoticonListPopup = ({options}: {options: EmoticonListPopupOptions}
     }
 
     return (
-        <div className={style.emoticonListPopup} data-preventbluremoticonpopup>
+        <div className={style.emoticonListPopup} data-preventbluremoticonpopup data-emoticon-popup>
             <EmoticonList onItemClick={options.onItemClick}/>
         </div>
     );

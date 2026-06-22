@@ -8,3 +8,9 @@
 .App {
     width: 300px;
 }
+
+.version {
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    opacity: 0.6;
+}

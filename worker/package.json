@@ -1,0 +1,14 @@
+{
+  "name": "emoticon-replacer-config-worker",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "compile": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240924.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^3.78.0"
+  }
+}
